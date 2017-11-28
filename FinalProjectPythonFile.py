@@ -1,41 +1,40 @@
 ## SI 206 2017
-## Project 3
-## Building on HW7, HW8 (and some previous material!)
+## Project 4
 
-##THIS STARTER CODE DOES NOT RUN!!
 
-##OBJECTIVE:
-## In this assignment you will be creating database and loading data
-## into database.  You will also be performing SQL queries on the data.
-## You will be creating a database file: 206_APIsAndDBs.sqlite
+
+
+
 import unittest
 import itertools
 import collections
-import tweepy
-import twitter_info # same deal as always...
 import json
 import sqlite3
 import sys
 ## Your name:Rachel Richardson
-## The names of anyone you worked with on this project: Sarah Jomaa
+
 
 #####
 
 ##### TWEEPY SETUP CODE:
-# Authentication information should be in a twitter_info file...
-YT_key = 'AIzaSyDq7eNZh7Y-IzWmCUR79bIRsaMYCBCXSCc'
-
-# Set up library to grab stuff from twitter with your authentication, and
-# return it in a JSON format
-api = https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id=4Y4YSpF6d6w&key={YT_key}
-##### END TWEEPY SETUP CODE
-## Task 1 - Gathering data
-## Define a function called get_user_tweets that gets at least 20 Tweets
-## from a specific Twitter user's timeline, and uses caching. The function
-## should return a Python object representing the data that was retrieved
-## from Twitter. (This may sound familiar...) We have provided a
-## CACHE_FNAME variable for you for the cache file name, but you must
-## write the rest of the code in this file.
+# Authentication information should be in ..
+import requests
+from pprint import pprint
+my_id = '4WXJB5FPM1JZWXLPM1JXI10JQVUYWXR4ZXTQCP5C4BHP0RCK'
+my_secret = 'UNM3JUBSXQJ1QJYIOHNYGWRC2HAPLTNP0GPQX3W023OVXGBO'
+url = "https://api.foursquare.com/v2/venues/search"
+given_city = input('enter city: ')
+params = dict(
+  client_id= my_id,
+  client_secret= my_secret,
+  near= given_city,
+  v='20170801',
+  limit=1
+)
+resp = requests.get(url=url, params=params)
+data = json.loads(resp.text)
+pprint(data)
+#get likes, hereNow, popular hours, name
 CACHE_FNAME = "206_FinalProject_cache.json"
 ## either gets new data or caches data, depending upon what the input
 ##		to search for is.
@@ -58,14 +57,13 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
         print(*map(f, objects), sep=sep, end=end, file=file)
 # Define your function get_user_tweets here:
-def get_place_info(place):
-    if place in CACHE_DICTION:
-        Google_Places_results = CACHE_DICTION[place]
-    else:
-
-        Google_Places_results = place.get_rating(place)
-        CACHE_DICTION[user] =  Google_Places_results
-        fw = open(CACHE_FNAME,"w")
-        fw.write(json.dumps(CACHE_DICTION))
-        fw.close()
-    return Google_Places_results
+# def get_place_info(place):
+#     if place in CACHE_DICTION:
+#         restaurant_results = CACHE_DICTION[restaurant]
+#         else:
+#         restaurant_results = api.search()
+#         CACHE_DICTION[restaurant] = restaurant_results
+#         fw = open(CACHE_FNAME,"w")
+#         fw.write(json.dumps(CACHE_DICTION))
+#         fw.close()
+#     return restaurant_results
