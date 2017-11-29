@@ -99,7 +99,6 @@ for x in place_stuff['response']['venue']['popular']['timeframes']:
     popular_time_list.append([x][0]['open'][0]['renderedTime'])
 days_and_popular_times_dict = zip(day_list, popular_time_list)
 days_and_popular_times_dict = dict(days_and_popular_times_dict)
-print(days_and_popular_times_dict)
 
 uprint(venue_id)
 uprint(venue_name)
