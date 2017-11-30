@@ -13,6 +13,13 @@ import sys
 import requests
 from pprint import pprint
 
+def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
+    enc = file.encoding
+    if enc == 'UTF-8':
+        print(*objects, sep=sep, end=end, file=file)
+    else:
+        f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
+        print(*map(f, objects), sep=sep, end=end, file=file)
 #get places rating from FourSquare
 my_id_foursquare = '4WXJB5FPM1JZWXLPM1JXI10JQVUYWXR4ZXTQCP5C4BHP0RCK'
 my_secret_foursquare = 'UNM3JUBSXQJ1QJYIOHNYGWRC2HAPLTNP0GPQX3W023OVXGBO'
@@ -26,7 +33,7 @@ resp1 = requests.get(url=url1, params=params1)
 data1 = json.loads(resp1.text)
 id_place = data1['response']['venues'][0]['id']
 id_place = data1['response']['venues'][0]['id']
-
+uprint(data1['response']['venues'][0])
 CACHE_FNAME = "206_FinalProject_cache.json"
 ## either gets new data or caches data, depending upon what the input
 ##		to search for is.
@@ -41,13 +48,7 @@ try:
     cache_file.close()
 except:
     CACHE_DICTION = {}
-def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
-    enc = file.encoding
-    if enc == 'UTF-8':
-        print(*objects, sep=sep, end=end, file=file)
-    else:
-        f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
-        print(*map(f, objects), sep=sep, end=end, file=file)
+
 # # Define your function get_user_tweets here:
 def get_place_info(place, city):
     if place in CACHE_DICTION:
@@ -70,20 +71,23 @@ place_stuff = get_place_info(given_place, near_city)
 #print(type(place_stuff))
 agree_count_list = []
 text_of_reviews_list = []
-text_and_agree_counts = {}
+tip_text_time_posted_and_agree_counts = {}
+time_created_list = []
+
 for x in place_stuff['response']['venue']['tips']['groups'][0]['items']:
     text_of_reviews_list.append(x['text'])
     agree_count_list.append(x['agreeCount'])
-    text_and_agree_counts = zip(text_of_reviews_list, agree_count_list)
-    sorted_text_and_agree_counts = sorted(text_and_agree_counts, key=operator.itemgetter(1), reverse = True)
-
+    time_created_list.append(x['createdAt'])
+    text_and_agree_counts = zip(text_of_reviews_list, agree_count_list, time_created_list)
+    sorted_text_and_agree_counts = sorted(tip_text_time_posted_and_agree_counts, key=operator.itemgetter(1), reverse = True)
+tips_count = place_stuff['response']['venue']['tips']['count']
 venue_id = place_stuff['response']['venue']['id']
 venue_name = place_stuff['response']['venue']['name']
-venue_full_address = str(place_stuff['response']['venue']['location']['formattedAddress'])
-rating = place_stuff['response']['venue']['rating']
-most_popular_tip = sorted_text_and_agree_counts[0][0]
-agree_count_of_most_agreed = sorted_text_and_agree_counts[0][1]
-people_there_now = place_stuff['response']['venue']['hereNow']['count']
+venue_full_address = str(place_stuff['response']['venue']['location']['address'])
+foursqure_rating = place_stuff['response']['venue']['rating']
+venue_lat = place_stuff['response']['venue']['location']['lat']
+venue_long = place_stuff['response']['venue']['location']['lng']
+checkins_count = place_stuff['response']['venue']['stats']['checkinsCount']
 
 day_list = []
 popular_time_list = []
@@ -96,13 +100,12 @@ days_and_popular_times_dict = dict(days_and_popular_times_dict)
 
 uprint(venue_id)
 uprint(venue_name)
-uprint(str(venue_full_address))
-uprint(rating)
-uprint(most_popular_tip)
-uprint(agree_count_of_most_agreed)
-uprint(people_there_now)
-uprint(days_and_popular_times_dict)
-#
+uprint(venue_full_address)
+uprint(foursqure_rating)
+uprint(text_of_reviews_list)
+uprint(checkins_count)
+uprint(agree_count_list)
+uprint(time_created_list)#
 # #creating tables
 # conn = sqlite3.connect('FinalProject.sqlite')
 # cur = conn.cursor()
@@ -132,7 +135,7 @@ uprint(days_and_popular_times_dict)
 #get lattitude and longitude for data in cache so that Google Places API may be used
 google_geocoding_api_key = 'AIzaSyDGFEb0ZfWRf0VdLPJ5NEk_7Rv8gfXJMfw'
 url3 = 'https://maps.googleapis.com/maps/api/geocode/json?'
-params3 = dict(key = google_geocoding_api_key, address = venue_full_address)
+params3 = dict(key = google_geocoding_api_key, address =  '2207 N Clybourn Ave Chicago IL 60614')
 resp3 = requests.get(url=url3, params=params3)
 data3 = json.loads(resp3.text)
 lat_address = str(data3['results'][0]['geometry']['location']['lat'])
@@ -141,8 +144,14 @@ uprint(lat_address, long_address)
 # #get rating from Google Places API in order to compare it to rating on FourSquare
 google_places_key = 'AIzaSyB5lhcP3c953-H5wnwuel5o8cS33MFLMFE'
 url4 = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
-params4= dict(key= google_places_key, location = '41.9428366, -87.64906129999997', rankby = 'distance', keyword = given_place, page_token = 1)
+params4= dict(key= google_places_key, location = '41.921931 -87.66430749999999', rankby = 'distance', keyword = given_place, page_token = 1)
 resp4 = requests.get(url=url4, params=params4)
 data4 = json.loads(resp4.text)
-uprint(data4['results'][0]['rating'])
+google_places_rating = data4['results'][0]['rating']
+uprint(google_places_rating)
 #(lat_address,long_address)
+
+#normalize scores from both sites to make it a better comparison
+normalized_foursquare_rating = foursqure_rating / 10
+normalized_google_place_rating = google_places_rating / 5
+uprint(normalized_foursquare_rating, normalized_google_place_rating)
