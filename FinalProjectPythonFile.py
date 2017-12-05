@@ -8,10 +8,10 @@ import collections
 import json
 import sqlite3
 import sys
-## Your name:Rachel Richardson
-
 import requests
 from pprint import pprint
+
+## Your name:Rachel Richardson
 
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
     enc = file.encoding
@@ -23,17 +23,15 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
 #get places rating from FourSquare
 my_id_foursquare = '4WXJB5FPM1JZWXLPM1JXI10JQVUYWXR4ZXTQCP5C4BHP0RCK'
 my_secret_foursquare = 'UNM3JUBSXQJ1QJYIOHNYGWRC2HAPLTNP0GPQX3W023OVXGBO'
-base_url = "https://api.foursquare.com/v2/venues/search?query="
+base_url1 = "https://api.foursquare.com/v2/venues/search?query="
 given_place = input('enter place: ')
 near_city = input('enter city: ')
-params1 = dict(client_id= my_id_foursquare, client_secret= my_secret_foursquare,
- v='20170801', near = near_city, limit=1)
-url1 = base_url + given_place + "&intent=browse"
+params1 = dict( v='20170801', near = near_city, limit=1)
+url1 = base_url1 + given_place + "&client_id=" + my_id_foursquare + "&client_secret=" + my_secret_foursquare + "&intent=browse"
 resp1 = requests.get(url=url1, params=params1)
 data1 = json.loads(resp1.text)
 id_place = data1['response']['venues'][0]['id']
-id_place = data1['response']['venues'][0]['id']
-uprint(data1['response']['venues'][0])
+#uprint(data1['response']['venues'][0])
 CACHE_FNAME = "206_FinalProject_cache.json"
 ## either gets new data or caches data, depending upon what the input
 ##		to search for is.
@@ -67,91 +65,172 @@ def get_place_info(place, city):
         fw.close()
     return place_results
 
-place_stuff = get_place_info(given_place, near_city)
-#print(type(place_stuff))
+venue_info = get_place_info(given_place, near_city)
+#print(type(venue_info))
 agree_count_list = []
-text_of_reviews_list = []
+text_of_tips_list = []
 tip_text_time_posted_and_agree_counts = {}
 time_created_list = []
+tipper_id_list = []
+tipper_first_name_list = []
 
-for x in place_stuff['response']['venue']['tips']['groups'][0]['items']:
-    text_of_reviews_list.append(x['text'])
+for x in venue_info['response']['venue']['tips']['groups'][0]['items']:
+    text_of_tips_list.append(x['text'])
     agree_count_list.append(x['agreeCount'])
     time_created_list.append(x['createdAt'])
-    text_and_agree_counts = zip(text_of_reviews_list, agree_count_list, time_created_list)
-    sorted_text_and_agree_counts = sorted(tip_text_time_posted_and_agree_counts, key=operator.itemgetter(1), reverse = True)
-tips_count = place_stuff['response']['venue']['tips']['count']
-venue_id = place_stuff['response']['venue']['id']
-venue_name = place_stuff['response']['venue']['name']
-venue_full_address = str(place_stuff['response']['venue']['location']['address'])
-foursqure_rating = place_stuff['response']['venue']['rating']
-venue_lat = place_stuff['response']['venue']['location']['lat']
-venue_long = place_stuff['response']['venue']['location']['lng']
-checkins_count = place_stuff['response']['venue']['stats']['checkinsCount']
+    tipper_id_list.append(x['user']['id'])
+    tipper_first_name_list.append(x['user']['firstName'])
+text__agree_counts_first_id = zip(text_of_tips_list, agree_count_list, time_created_list, tipper_id_list, tipper_first_name_list)
+sorted_text__agree_counts_first_id = sorted(text__agree_counts_first_id, key=operator.itemgetter(1), reverse = True)
+tips_count = venue_info['response']['venue']['tips']['count']
+venue_id = venue_info['response']['venue']['id']
+venue_name = venue_info['response']['venue']['name']
+venue_full_address = str(venue_info['response']['venue']['location']['address'])
+foursqure_rating = venue_info['response']['venue']['rating']
+visits_count = venue_info['response']['venue']['stats']['visitsCount']
+lat_venue = str(venue_info['response']['venue']['location']['lat'])
+long_venue = str(venue_info['response']['venue']['location']['lng'])
 
 day_list = []
 popular_time_list = []
 days_and_popular_times_dict = {}
-for x in place_stuff['response']['venue']['popular']['timeframes']:
+for x in venue_info['response']['venue']['popular']['timeframes']:
     day_list.append([x][0]['days'])
     popular_time_list.append([x][0]['open'][0]['renderedTime'])
-days_and_popular_times_dict = zip(day_list, popular_time_list)
-days_and_popular_times_dict = dict(days_and_popular_times_dict)
-
-uprint(venue_id)
-uprint(venue_name)
-uprint(venue_full_address)
-uprint(foursqure_rating)
-uprint(text_of_reviews_list)
-uprint(checkins_count)
-uprint(agree_count_list)
-uprint(time_created_list)#
-# #creating tables
+days_and_popular_times_zip_dict = zip(day_list, popular_time_list)
+days_and_popular_times_dict = dict(days_and_popular_times_zip_dict)
+uprint("days and thier popular times", days_and_popular_times_dict)
+uprint("venue id:", venue_id)
+uprint("venue name:", venue_name)
+uprint("venue_full_address:", venue_full_address)
+uprint("foursqure_rating:", foursqure_rating)
+uprint("visits_count:", visits_count)
+uprint("text_of_tips_list:",text_of_tips_list)
+uprint("agree_count_list:",agree_count_list)
+uprint("time_created_list:", time_created_list)
+uprint("lat_venue,long_venue:", lat_venue,long_venue)
+uprint("tipper_first_name_list:", tipper_first_name_list)
+uprint("tipper_id_list:", tipper_id_list)
+#creating tables
 # conn = sqlite3.connect('FinalProject.sqlite')
 # cur = conn.cursor()
-# cur.execute("DROP TABLE IF EXISTS Places")
-# cur.execute("CREATE TABLE Places (place_id TEXT, name TEXT, description TEXT, location TEXT)")
-#
-# # for tw in place_stuff:
-# #     print(tw)
-#     #tup = tw['response']['venue']['id'], tw['response']['venue']['name'], tw['response']['venue']['description'], tw['response']['venue']['location']['city']
-#     #cur.execute("INSERT INTO Users (place_id, name, description, location) VALUES (?, ?, ?, ?)", tup)
+# cur.execute("DROP TABLE IF EXISTS Venues")
+# cur.execute("CREATE TABLE Venues (venue_id TEXT, venu_name TEXT)")
+# #TEXT, venue_name TEXT, venue_description TEXT, venue_full_address)")
+#  #tw[0]['response']['venue']['name'])
+#     #tw['response']['venue']['description'], tw['response']['venue']['location']['address']
+#     #cur.execute("INSERT INTO Users (venue_id, venue_name, VALUES (?, ?)", tup)
+#     #venue_description, venue_full_address)
 # conn.commit()
+
 # conn = sqlite3.connect('206_APIsAndDBs.sqlite')
 # cur = conn.cursor()
 # cur.execute('DROP TABLE IF EXISTS Reviews')
-# cur.execute("CREATE TABLE Reviews (name TEXT, rating NUMBER, review TEXT, agreements NUMBER)")
-# # # for tw in place_stuff:
-# # #     tup = tw['response']['venue']['name']
-# # #sorted_text_and_agree_counts[0], tw['response']['venue']['rating'], tw['response']['venue']['tips']['groups'][0]['items'][0]['agreeCount']
-# # #     cur.execute("INSERT INTO Tweets (name, review, user_posted, agreements) VALUES (?, ?, ?, ?)", tup)
+# cur.execute("CREATE TABLE Foursquare Tips (name TEXT, rating NUMBER, review TEXT, agreements NUMBER)")
+# for tw in venue_info:
+#     tup = tw['response']['venue']['name'], tw['response']['venue']['rating'],
+# cur.execute("INSERT INTO Tweets (name, review, user_posted, agreements) VALUES (?, ?, ?, ?)", tup)
 # conn.commit()
-# cur.execute('DROP TABLE IF EXISTS Popularity')
-# cur.execute("CREATE TABLE Popularity (name TEXT, popular_hours NUMBER, here_now NUMBER)")
-#for tw in place_stuff:
-#     tup = tw['response']['venue']['popular'], tw['response']['venue']['hereNow']['count'], tw['response']['venue']['name']
-# #     cur.execute("INSERT INTO Tweets (name, here_now, popular_hours) VALUES (?, ?, ?)", tup)
-# #
-#get lattitude and longitude for data in cache so that Google Places API may be used
-google_geocoding_api_key = 'AIzaSyDGFEb0ZfWRf0VdLPJ5NEk_7Rv8gfXJMfw'
-url3 = 'https://maps.googleapis.com/maps/api/geocode/json?'
-params3 = dict(key = google_geocoding_api_key, address =  '2207 N Clybourn Ave Chicago IL 60614')
-resp3 = requests.get(url=url3, params=params3)
-data3 = json.loads(resp3.text)
-lat_address = str(data3['results'][0]['geometry']['location']['lat'])
-long_address = str(data3['results'][0]['geometry']['location']['lng'])
-uprint(lat_address, long_address)
-# #get rating from Google Places API in order to compare it to rating on FourSquare
-google_places_key = 'AIzaSyB5lhcP3c953-H5wnwuel5o8cS33MFLMFE'
-url4 = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
-params4= dict(key= google_places_key, location = '41.921931 -87.66430749999999', rankby = 'distance', keyword = given_place, page_token = 1)
-resp4 = requests.get(url=url4, params=params4)
-data4 = json.loads(resp4.text)
-google_places_rating = data4['results'][0]['rating']
-uprint(google_places_rating)
-#(lat_address,long_address)
 
-#normalize scores from both sites to make it a better comparison
+# cur.execute('DROP TABLE IF EXISTS Popular Hours')
+# cur.execute("CREATE TABLE Popular Hours (name TEXT, popular_hours NUMBER)")
+# for tw in venue_info:
+#     tup = tw['response']['venue']['name'], tw['response']['venue']['popular']
+# cur.execute("INSERT INTO Popular Hours (name, here_now, popular_hours) VALUES (?, ?, ?)", tup)
+
+
+lat_long_for_google = str(lat_venue) + ' ' + str(long_venue)
+print('lat_long_for_google:', lat_long_for_google)
+#get rating from Google Places API in order to compare it to rating on FourSquare
+google_places_key = 'AIzaSyB5lhcP3c953-H5wnwuel5o8cS33MFLMFE'
+base_url3 = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
+url3 = base_url3 + 'location=' + lat_long_for_google + '&rankby=distance' + '&type=restaurant' + '&keyword=' + given_place + '&key=' + google_places_key
+resp3 = requests.get(url=url3)
+data3 = json.loads(resp3.text)
+uprint('google_price_level:', data3['results'][0]['price_level'])
+google_places_rating = data3['results'][0]['rating']
+uprint('google_places_rating:', google_places_rating)
+
+zomato_api_key = '7d1d3cf1b6215d75c6727970127e88f3'
+base_url4 = 'https://developers.zomato.com/api/v2.1/geocode?'
+url4 = base_url4 + 'lat=' + lat_venue + '&lon=' + long_venue
+header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": zomato_api_key}
+response = requests.get(url=url4, headers=header)
+data4 = response.json()
+location_title = data4['location']['title']
+city_popularity = data4['popularity']['popularity']
+city_nighlife_rating = data4['popularity']['nightlife_index']
+city_best_food_types = data4['popularity']['top_cuisines']
+uprint('city popularity:', city_popularity, '/ 5')
+uprint('city night life rating:', city_nighlife_rating, '/ 5')
+
+zomato_api_key = '7d1d3cf1b6215d75c6727970127e88f3'
+base_url5 = "https://developers.zomato.com/api/v2.1/search?q="
+given_place_len_minius1 = (len(given_place.split()) - 1)
+i = 0
+given_place_zomato_step1 = ''
+while i < (given_place_len_minius1):
+    for x in given_place.split():
+        i += 1
+        given_place_zomato_step1 += (x+'%20')
+l = list(given_place_zomato_step1)
+del(l[-3:])
+given_place_zomato_step2 = "".join(l)  # convert back to string
+if 'the%20' in given_place_zomato_step2:
+    given_place_zomato_step2 = given_place_zomato_step2.replace('the%20', '')
+
+header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": zomato_api_key}
+url5 = base_url5 + given_place_zomato_step2 +'&lat=' + str(lat_venue) + '&lon=%20' + str(long_venue) + "&radius=0&sort=real_distance&order=assc"
+response5 = requests.get(url=url5, headers=header)
+data5 = response5.json()
+avg_cost_2 = data5['restaurants'][0]['restaurant']['average_cost_for_two']
+uprint('average cost for 2 people:', '$', avg_cost_2)
+locality = data5['restaurants'][0]['restaurant']['location']['locality_verbose']
+price_range_zomato = data5['restaurants'][0]['restaurant']['price_range']
+uprint('price range:', price_range_zomato)
+zomato_res_id = (data5['restaurants'][0]['restaurant']['R']['res_id'])
+zomato_rating = (data5['restaurants'][0]['restaurant']['user_rating']['aggregate_rating'])
+zomato_votes_rating = (data5['restaurants'][0]['restaurant']['user_rating']['votes'])
+# #normalize scores from both sites to make it a better comparison
 normalized_foursquare_rating = foursqure_rating / 10
 normalized_google_place_rating = google_places_rating / 5
-uprint(normalized_foursquare_rating, normalized_google_place_rating)
+normalized_zomato_rating = float(zomato_rating) / 5
+uprint('normalized foursquare rating:' , normalized_foursquare_rating)
+uprint('normalized google places rating:', normalized_google_place_rating)
+uprint('noralized zomato rating', normalized_zomato_rating)
+
+#get city id
+zomato_api_key = '7d1d3cf1b6215d75c6727970127e88f3'
+base_url6 = 'https://developers.zomato.com/api/v2.1/cities?q='
+url6 = base_url6 + near_city
+header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": zomato_api_key}
+response6 = requests.get(url=url6, headers=header)
+data6 = response6.json()
+city_id = str(data6['location_suggestions'][0]['id'])
+uprint('city_id:', city_id)
+#
+# #get collections, total = 100 Restaurants
+zomato_api_key = '7d1d3cf1b6215d75c6727970127e88f3'
+base_url7 = 'https://developers.zomato.com/api/v2.1/collections?city_id='
+url7 = base_url7 + city_id + '&count=100'
+header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": zomato_api_key}
+response7 = requests.get(url=url7, headers=header)
+data7 = response7.json()
+collection_id_list = []
+collection_title_list = []
+uprint(data7['collections'])
+for x in data7['collections']:
+    collection_id_list.append(x['collection']['collection_id'])
+    collection_title_list.append(x['collection']['title'])
+collection_id_and_title_zip = zip(collection_title_list, collection_id_list)
+dict_collection_id_and_title = dict(collection_id_and_title_zip )
+print(dict_collection_id_and_title)
+#get restaurants that fall under this category
+for x in collection_id_list:
+    base_url8 = 'https://developers.zomato.com/api/v2.1/search?entity_id='
+    url8 = base_url8 + city_id +'&entity_type=city&count=100&collection_id=' + str(x) +'&sort=rating&order=asc'
+    header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": zomato_api_key}
+    response8 = requests.get(url=url8, headers=header)
+    data8 = response8.json()
+    for y in data8['restaurants']:
+        uprint(y['restaurant'])
