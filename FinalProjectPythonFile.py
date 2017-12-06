@@ -98,7 +98,6 @@ response7 = requests.get(url=url7, headers=header)
 data7 = response7.json()
 collection_id_list = []
 collection_title_list = []
-uprint(data7['collections'])
 for x in data7['collections']:
     collection_id_list.append(x['collection']['collection_id'])
     collection_title_list.append(x['collection']['title'])
@@ -106,8 +105,8 @@ collection_id_and_title_zip = zip(collection_title_list, collection_id_list)
 dict_collection_id_and_title = dict(collection_id_and_title_zip )
 print(dict_collection_id_and_title)
 
-#get restaurants that fall under this category
-for x in collection_id_list:
+#get info on restaurants that fall under this category
+for x in dict_collection_id_and_title:
     base_url8 = 'https://developers.zomato.com/api/v2.1/search?entity_id='
     url8 = base_url8 + city_id +'&entity_type=city&count=100&collection_id=' + str(x) +'&sort=rating&order=asc'
     header = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": Keys_and_Secrets.zomato_api_key}
@@ -117,18 +116,32 @@ for x in collection_id_list:
         print(x)
         uprint(y['restaurant'])
         print('\n\n')
-        uprint('restaurant id:', y['restaurant']['R']['res_id'])
-        uprint('restaurant name:', y['restaurant']['name'])
-        uprint('adress:', y['restaurant']['location']['address'])
-        uprint('locality:', y['restaurant']['location']['locality_verbose'])
-        uprint('longitude:', y['restaurant']['location']['latitude'])
-        uprint('lattitude:', y['restaurant']['location']['longitude'])
-        uprint('cuisines:', y['restaurant']['cuisines'])
-        uprint('average cost for two:', y['restaurant']['average_cost_for_two'])
-        uprint('zomato price range:', y['restaurant']['price_range'])
-        uprint('zomato_users_rating:', y['restaurant']['user_rating']['aggregate_rating'])
-        uprint('zomato_rating_text:', y['restaurant']['user_rating']['rating_text'])
-        uprint('zomato_rating_votes:', y['restaurant']['user_rating']['votes'])
+        restaurant_id = y['restaurant']['R']['res_id']
+        restaurant_name = y['restaurant']['name']
+        restaurant_address = y['restaurant']['location']['address']
+        restaurant_city = y['restaurant']['location']['city']
+        restaurant_locality = y['restaurant']['location']['locality_verbose']
+        restaurant_lat = y['restaurant']['location']['latitude']
+        restaurant_long = y['restaurant']['location']['longitude']
+        restaurant_cuisines = y['restaurant']['cuisines']
+        avg_cost_2 = y['restaurant']['average_cost_for_two']
+        zomato_price_range = y['restaurant']['price_range']
+        zomato_rating = y['restaurant']['user_rating']['aggregate_rating']
+        zomato_rating_text =  y['restaurant']['user_rating']['rating_text']
+        zomato_rating_votes = y['restaurant']['user_rating']['votes']
+        uprint('restaurant id:', restaurant_id)
+        uprint('restaurant name:', restaurant_name)
+        uprint('adress:', restaurant_address)
+        uprint('locality:', restaurant_locality)
+        uprint('longitude:', restaurant_lat)
+        uprint('lattitude:', restaurant_long)
+        uprint('cuisines:', restaurant_cuisines)
+        uprint('average cost for two: $', avg_cost_2)
+        uprint('zomato price range:', zomato_price_range )
+        uprint('zomato_rating:', zomato_rating)
+        uprint('zomato_rating_text:',zomato_rating_text)
+        uprint('zomato_rating_votes:', zomato_rating_votes)
+        uprint('city:', restaurant_city)
         print('\n\n')
 
 # #get info for restaurant on zomato
@@ -179,28 +192,29 @@ venue_name = venue_info['response']['venue']['name']
 venue_full_address = str(venue_info['response']['venue']['location']['address'])
 foursqure_rating = venue_info['response']['venue']['rating']
 visits_count = venue_info['response']['venue']['stats']['visitsCount']
-
-
-day_list = []
-popular_time_list = []
-days_and_popular_times_dict = {}
-for x in venue_info['response']['venue']['popular']['timeframes']:
-    day_list.append([x][0]['days'])
-    popular_time_list.append([x][0]['open'][0]['renderedTime'])
-days_and_popular_times_zip_dict = zip(day_list, popular_time_list)
-days_and_popular_times_dict = dict(days_and_popular_times_zip_dict)
-uprint("days and thier popular times", days_and_popular_times_dict)
 uprint("venue id:", venue_id)
 uprint("venue name:", venue_name)
 uprint("venue_full_address:", venue_full_address)
 uprint("foursqure_rating:", foursqure_rating)
-uprint("visits_count:", visits_count)
+uprint("visits to restaurant count:", visits_count)
 uprint("text_of_tips_list:",text_of_tips_list)
 uprint("agree_count_list:",agree_count_list)
 uprint("time_created_list:", time_created_list)
 uprint("lat_venue,long_venue:", lat_venue,long_venue)
 uprint("tipper_first_name_list:", tipper_first_name_list)
 uprint("tipper_id_list:", tipper_id_list)
+
+day_list = []
+popular_time_list = []
+days_and_popular_times_dict = {}
+if 'popular' in venue_info.keys():
+    for x in venue_info['response']['venue']['popular']['timeframes']:
+        day_list.append([x][0]['days'])
+        popular_time_list.append([x][0]['open'][0]['renderedTime'])
+        days_and_popular_times_zip_dict = zip(day_list, popular_time_list)
+        days_and_popular_times_dict = dict(days_and_popular_times_zip_dict)
+        uprint("days and thier popular times", days_and_popular_times_dict)
+
 # #creating tables
 # conn = sqlite3.connect('FinalProject.sqlite')
 # cur = conn.cursor()
@@ -247,4 +261,4 @@ normalized_google_place_rating = google_places_rating / 5
 normalized_zomato_rating = float(zomato_rating) / 5
 uprint('normalized foursquare rating:' , normalized_foursquare_rating)
 uprint('normalized google places rating:', normalized_google_place_rating)
-uprint('noralized zomato rating', normalized_zomato_rating)
+uprint('normalized zomato rating', normalized_zomato_rating)
