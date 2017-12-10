@@ -117,3 +117,84 @@ visits_count = venue_info['response']['venue']['stats']['visitsCount']
 # collection_id_and_title_zip = zip(collection_title_list, collection_id_list)
 # dict_collection_id_and_title = dict(collection_id_and_title_zip )
 # print(dict_collection_id_and_title)
+    # a1 = time.gmtime(a)
+    # if a1[6] == 6:
+    #     day = 'Sunday'
+    # if a1[6] == 5:
+    #     day = 'Saturday'
+    # if a1[6] == 4:
+    #     day = 'Friday'
+    # if a1[6] == 3:
+    #     day = 'Thursday'
+    # if a1[6] == 2:
+    #     day = 'Wednesday'
+    # if a1[6] == 1:
+    #     day = 'Tuesday'
+    # if a1[6] == 0:
+    #     day = 'Monday'
+    # hour_posted = str(a1[3])
+    # min_posted = str(a1[4])
+    # hour_and_min_1 = hour_posted + ':' + min_posted
+    # hour_and_min = datetime.datetime.strptime(hour_and_min_1,'%H:%M').strftime('%I:%M %p')
+    # date = day + " " + hour_and_min
+    # foursquare_tip_time_created_list2.append(date)
+    # if a1[1] == 1:
+    #     #print("foursquare review created at:", hour_and_min, day,'January', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'January', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 2:
+    #     #print("foursquare review created at:", hour_and_min, day, 'February', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'February', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 3:
+    #     #print("foursquare review created at:", hour_and_min, 'March', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'March', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 4:
+    #     #print("foursquare review created at:", hour_and_min,day, 'April', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'April', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 5:
+    #     #print("foursquare review created at:", hour_and_min,day,'May', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'May', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 6:
+    #     #print("foursquare review created at:", hour_and_min,day, 'June', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'June', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 7:
+    #     #print("foursquare review created at:", hour_and_min,day, 'July', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'July', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 8:
+    #     #print("foursquare review created at:", hour_and_min,day, 'August', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'August', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 9:
+    #     #print("foursquare review created at:", hour_and_min,day, 'September', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'September', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 10:
+    #     #print("foursquare review created at:", hour_and_min,day, 'October', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'October', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 11:
+    #     #print("foursquare review created at:", hour_and_min,day, 'November', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'November', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)
+    # if a1[1] == 12:
+    #     #print("foursquare review created at:", hour_and_min,day, 'December', a1[2], a1[0])
+    #     time_created_format = (hour_and_min, day, 'December', a1[2], a1[0])
+    #     #foursquare_tip_time_created_list2.append(time_created_format)
+    #     #print(time_created_format)

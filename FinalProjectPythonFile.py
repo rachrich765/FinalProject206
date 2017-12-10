@@ -13,6 +13,7 @@ import Keys_and_Secrets
 import time
 import datetime
 
+
 # Your name:Rachel Richardson
 
 def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
@@ -109,7 +110,8 @@ zomato_price_range_list = []
 avg_cost_2_list = []
 for y in restaurants_info['restaurants']:
     #uprint(y['restaurant'])
-    zomato_restaurant_id = y['restaurant']['R']['res_id']
+    zomato_restaurant_id = str(y['restaurant']['R']['res_id'])
+    zomato_restaurant_id_list.append(zomato_restaurant_id)
     zomato_restaurant_name = y['restaurant']['name']
     zomato_restaurant_name_list.append(zomato_restaurant_name)
     restaurant_address = y['restaurant']['location']['address']
@@ -141,63 +143,73 @@ for y in restaurants_info['restaurants']:
 #         # uprint('zomato_rating_votes:', zomato_rating_votes)
 
 #
-# CACHE_FNAME4 = "zomato_reviews_cache.json"
-# # # either gets new data or caches data, depending upon what the input
-# # #		to search for is.
-# try:
-# #     # Try to read the data from the file
-#     cache_file4 = open(CACHE_FNAME4, 'r')
-# #     # If it's there, get it into a string
-#     cache_contents4 = cache_file4.read()
-# #     # load data into a dictionary
-#     CACHE_DICTION4 = json.loads(cache_contents4)
-#     cache_file4.close()
-# except:
-#     CACHE_DICTION4 = {}
+CACHE_FNAME4 = "zomato_reviews_cache.json"
+# # either gets new data or caches data, depending upon what the input
+# #		to search for is.
+try:
+#     # Try to read the data from the file
+    cache_file4 = open(CACHE_FNAME4, 'r')
+#     # If it's there, get it into a string
+    cache_contents4 = cache_file4.read()
+#     # load data into a dictionary
+    CACHE_DICTION4 = json.loads(cache_contents4)
+    cache_file4.close()
+except:
+    CACHE_DICTION4 = {}
 #
-# # #get restaurant reviews from zomato API
-# def get_zomato_restaurant_reviews(restaurant_id1):
-#     if restaurant_id1 in CACHE_DICTION4:
-#         review_results = CACHE_DICTION4[restaurant_id1]
-#     else:
-#         base_url9 = 'https://developers.zomato.com/api/v2.1/reviews?res_id='
-#         url9 = base_url9 + str(restaurant_id1) + '&count=5'
-#         header9 = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": Keys_and_Secrets.zomato_api_key}
-#         response9 = requests.get(url=url9, headers=header9)
-#         data9 = response9.json()
-#         review_results = data9
-#         CACHE_DICTION4[restaurant_id1] = review_results
-#         fw = open(CACHE_FNAME4,"w")
-#         fw.write(json.dumps(CACHE_DICTION4))
-#         fw.close()
-#     return review_results
+# # # #get restaurant reviews from zomato API
+def get_zomato_restaurant_reviews(restaurant_id1):
+    if restaurant_id1 in CACHE_DICTION4:
+        review_results = CACHE_DICTION4[restaurant_id1]
+    # else:
+    #     base_url9 = 'https://developers.zomato.com/api/v2.1/reviews?res_id='
+    #     url9 = base_url9 + restaurant_id1 + '&count=1'
+    #     header9 = {"User-agent": "curl/7.43.0", "Accept": "application/json", "user_key": Keys_and_Secrets.zomato_api_key}
+    #     response9 = requests.get(url=url9, headers=header9)
+    #     data9 = response9.json()
+    #     review_results = data9
+    #     CACHE_DICTION4[restaurant_id1] = review_results
+    #     fw = open(CACHE_FNAME4,"w")
+    #     fw.write(json.dumps(CACHE_DICTION4))
+    #     fw.close()
+    return review_results
 
 zomato_reviewer_name_list = []
 zomato_review_text_list = []
 zomato_reviewer_foodie_level_word_list = []
 zomato_reviewer_foodie_level_number_list = []
-# i = 0
-# while i < 25:
-#     for y in zomato_restaurant_id_list:
-#         print(y)
-#         i += 1
-#     restaurant_reviews = get_zomato_restaurant_reviews(y)
-# for x in restaurant_reviews['user_reviews']:
-#     zomato_review_text = x['review']['review_text']
-    #zomato_review_text_list.append(zomato_review_text)
-#     zomato_review_time_posted = x['review']['timestamp']
-#     z_reviewer_name = x['review']['user']['name']
-    #zomato_reviewer_name_list.append(z_reviewer_name)
-#     z_reviewer_f_level = x['review']['user']['foodie_level']
-        #zomato_reviewer_foodie_level_word_list.append(z_reviewer_f_level)
-#     z_reviewer_f_level_num = x['review']['user']['foodie_level_num']
-#   zomato_reviewer_foodie_level_number_list.append(z_reviewer_f_level_num)
-#         # uprint('zomato review text:', zomato_review_text)
-#         # uprint('zomato review posted:', zomato_review_time_posted)
-#         # uprint('zomato reviewer name:', z_reviewer_f_level)
-#         # uprint('zomato foodie level:', z_reviewer_f_level)
-#         # uprint('zomato foodie level number:', z_reviewer_f_level_num)
-#
+zomato_time_review_posted_list = []
+for y in zomato_restaurant_id_list:
+    restaurant_reviews = get_zomato_restaurant_reviews(y)
+    for x in restaurant_reviews['user_reviews']:
+        #uprint(x['review']['likes'])
+        zomato_review_text = x['review']['review_text']
+        zomato_review_text_list.append(zomato_review_text)
+        zomato_review_time_posted1 = x['review']['timestamp']
+        zomato_time_review_posted_list.append(zomato_review_time_posted1)
+        z_reviewer_name = x['review']['user']['name']
+        zomato_reviewer_name_list.append(z_reviewer_name)
+        z_reviewer_f_level = x['review']['user']['foodie_level']
+        zomato_reviewer_foodie_level_word_list.append(z_reviewer_f_level)
+        z_reviewer_f_level_num = x['review']['user']['foodie_level_num']
+        zomato_reviewer_foodie_level_number_list.append(z_reviewer_f_level_num)
+#         uprint(y, 'zomato review text:', zomato_review_text)
+#         uprint(y, 'zomato review posted:', zomato_review_time_posted)
+#         uprint(y, 'zomato reviewer name:', z_reviewer_f_level)
+#         uprint(y, 'zomato foodie level:', z_reviewer_f_level)
+#         uprint(y, 'zomato foodie level number:', z_reviewer_f_level_num)
+zomato_time_review_posted_list2 = []
+for f in zomato_time_review_posted_list:
+    f1 = time.gmtime(f)
+    zomato_review_time_posted2 = time.strftime("%c", f1)
+    zomato_time_review_posted_list2.append(zomato_review_time_posted2)
+    #print(zomato_review_time_posted2)
+        #month_number = g[7:9]
+        #print(month_number)
+        #hour_posted = str(a1[3])
+        #min_posted = str(a1[4])
+        #hour_and_min_1 = hour_posted + ':' + min_posted
+        #hour_and_min = datetime.datetime.strptime(hour_and_min_1,'%H:%M').strftime('%I:%M %p')
 CACHE_FNAME5 = "foursquare_restaurants_cache.json"
 # # either gets new data or caches data, depending upon what the input
 # #		to search for is.
@@ -312,96 +324,17 @@ for abc in foursquare_id_list:
 #uprint(zomato_restaurant_name, foursquare_tip_text_list)
 
 # # #get time during day, day of week, and date of tip (review) posted on foursquare
-day = ''
 foursquare_tip_time_created_list2 = []
 for a in foursquare_tip_time_created_list:
     a1 = time.gmtime(a)
-    if a1[6] == 6:
-        day = 'Sunday'
-    if a1[6] == 5:
-        day = 'Saturday'
-    if a1[6] == 4:
-        day = 'Friday'
-    if a1[6] == 3:
-        day = 'Thursday'
-    if a1[6] == 2:
-        day = 'Wednesday'
-    if a1[6] == 1:
-        day = 'Tuesday'
-    if a1[6] == 0:
-        day = 'Monday'
-    hour_posted = str(a1[3])
-    min_posted = str(a1[4])
-    hour_and_min_1 = hour_posted + ':' + min_posted
-    hour_and_min = datetime.datetime.strptime(hour_and_min_1,'%H:%M').strftime('%I:%M %p')
-    date = day + " " + hour_and_min
-    foursquare_tip_time_created_list2.append(date)
-    if a1[1] == 1:
-        #print("foursquare review created at:", hour_and_min, day,'January', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'January', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 2:
-        #print("foursquare review created at:", hour_and_min, day, 'February', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'February', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 3:
-        #print("foursquare review created at:", hour_and_min, 'March', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'March', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 4:
-        #print("foursquare review created at:", hour_and_min,day, 'April', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'April', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 5:
-        #print("foursquare review created at:", hour_and_min,day,'May', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'May', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 6:
-        #print("foursquare review created at:", hour_and_min,day, 'June', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'June', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 7:
-        #print("foursquare review created at:", hour_and_min,day, 'July', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'July', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 8:
-        #print("foursquare review created at:", hour_and_min,day, 'August', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'August', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 9:
-        #print("foursquare review created at:", hour_and_min,day, 'September', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'September', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 10:
-        #print("foursquare review created at:", hour_and_min,day, 'October', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'October', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 11:
-        #print("foursquare review created at:", hour_and_min,day, 'November', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'November', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-    if a1[1] == 12:
-        #print("foursquare review created at:", hour_and_min,day, 'December', a1[2], a1[0])
-        time_created_format = (hour_and_min, day, 'December', a1[2], a1[0])
-        #foursquare_tip_time_created_list2.append(time_created_format)
-        #print(time_created_format)
-
+    foursquare_tip_time_created = time.strftime("%c", a1)
+    foursquare_tip_time_created_list2.append(foursquare_tip_time_created)
+    #print(foursquare_tip_time_created)
 CACHE_FNAME6 = "google_restaurants_cache.json"
 # # # either gets new data or caches data, depending upon what the input
 # # #		to search for is.
+cache_file6 = open(CACHE_FNAME6, 'r')
 try:
-    cache_file6 = open(CACHE_FNAME6, 'r')
     cache_contents6 = cache_file6.read()
     CACHE_DICTION6 = json.loads(cache_contents6)
     cache_file6.close()
@@ -449,7 +382,7 @@ while i < 25:
 zip_general_restaurant_info = zip(zomato_restaurant_name_list, restaurant_address_list, restaurant_locality_list, restaurant_cuisine_list)
 zip_interactions_zomato_part_1 = zip(zomato_restaurant_name_list, zomato_rating_list, avg_cost_2_list, zomato_price_range_list)
 zip_interactions_google = zip(zomato_restaurant_name_list, google_places_rating_list, google_price_level_list)
-#zip_interactions_zomato_part_2 = zip(zomato_restaurant_name_list, zomato_review_text_list, review_likes_list, zomato_reviewer_foodie_level_word_list, zomato_reviewer_foodie_level_number_list)
+zip_interactions_zomato_part_2 = zip(zomato_restaurant_name_list, zomato_review_text_list, zomato_time_review_posted_list2, zomato_reviewer_name_list, zomato_reviewer_foodie_level_word_list, zomato_reviewer_foodie_level_number_list)
 zip_interactions_foursquare_part1 = zip(zomato_restaurant_name_list, foursquare_rating_list, visits_count_list)
 #foursquare_tip_text_list, foursquare_tip_time_created_list2, agree_count_list, foursquare_tipper_id_list ,tipper_name_list
 zip_tips_foursquare = zip(zomato_restaurant_name_list, foursquare_tip_text_list, foursquare_tip_time_created_list2, agree_count_list, foursquare_tipper_id_list ,tipper_name_list)
@@ -457,9 +390,6 @@ normalized_zomato_rating = float(zomato_rating) / 5
 normalized_google_rating = (google_places_rating) / 5
 normalized_foursquare_rating = foursquare_rating / 10
 
-
-#uprint('normalized zomato rating', normalized_zomato_rating)
-#
 # # #creating database
 conn = sqlite3.connect('FinalProject.sqlite')
 cur = conn.cursor()
@@ -479,14 +409,14 @@ for y in zip_interactions_zomato_part_1:
     cur.execute("INSERT INTO Zomato_Interactions_Part_1 (restaurant_name, zomato_rating_out_of_5,average_cost_for_two, zomato_price_range_out_of_5) VALUES (?, ?, ?, ?)", tup)
 conn.commit()
 #
-# conn = sqlite3.connect('FinalProject.sqlite')
-# cur = conn.cursor()
-# cur.execute('DROP TABLE IF EXISTS Interactions_Part_2_Zomato_Reviews')
-# cur.execute("CREATE TABLE Interactions_Part_2_Zomato_Reviews (restaurant_name TEXT, zomato_review_text TEXT, zomato_time_review_posted TEXT, zomato_reviewer_name TEXT, zomato_reviewer_foodie_level_word TEXT,zomato_reviewer_foodie_level_number TEXT)")
-# for y in zip_zomato_reviews:
-#     tup = y[0], y[1], y[2], y[3], y[4], y[5]
-#     cur.execute("INSERT INTO Interactions_Part_2_Zomato_Reviews (restaurant_name, zomato_review_text, zomato_time_review_posted, zomato_reviewer_name, zomato_reviewer_foodie_level_word,zomato_reviewer_foodie_level_number) VALUES (?, ?, ?, ?, ?, ?)", tup)
-# conn.commit()
+conn = sqlite3.connect('FinalProject.sqlite')
+cur = conn.cursor()
+cur.execute('DROP TABLE IF EXISTS Interactions_Part_2_Zomato_Reviews')
+cur.execute("CREATE TABLE Interactions_Part_2_Zomato_Reviews (restaurant_name TEXT, zomato_review_text TEXT, zomato_time_review_posted TEXT, zomato_reviewer_name TEXT, zomato_reviewer_foodie_level_word TEXT,zomato_reviewer_foodie_level_number TEXT)")
+for y in zip_interactions_zomato_part_2:
+    tup = y[0], y[1], y[2], y[3], y[4], y[5]
+    cur.execute("INSERT INTO Interactions_Part_2_Zomato_Reviews (restaurant_name, zomato_review_text, zomato_time_review_posted, zomato_reviewer_name, zomato_reviewer_foodie_level_word,zomato_reviewer_foodie_level_number) VALUES (?, ?, ?, ?, ?, ?)", tup)
+conn.commit()
 
 conn = sqlite3.connect('FinalProject.sqlite')
 cur = conn.cursor()
