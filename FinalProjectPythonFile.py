@@ -24,7 +24,7 @@ def uprint(*objects, sep=' ', end='\n', file=sys.stdout):
         f = lambda obj: str(obj).encode(enc, errors='backslashreplace').decode(enc)
         print(*map(f, objects), sep=sep, end=end, file=file)
 
-city = input('enter city: ')
+city = 'chicago'
 
 CACHE_FNAME1 = "zomato_city_cache.json"
 # either gets new data or caches data, depending upon what the input
@@ -179,6 +179,7 @@ zomato_review_text_list = []
 zomato_reviewer_foodie_level_word_list = []
 zomato_reviewer_foodie_level_number_list = []
 zomato_time_review_posted_list = []
+uprint(zomato_restaurant_name_list, zomato_restaurant_id_list)
 for y in zomato_restaurant_id_list:
     restaurant_reviews = get_zomato_restaurant_reviews(y)
     for x in restaurant_reviews['user_reviews']:
@@ -203,13 +204,7 @@ for f in zomato_time_review_posted_list:
     f1 = time.gmtime(f)
     zomato_review_time_posted2 = time.strftime("%c", f1)
     zomato_time_review_posted_list2.append(zomato_review_time_posted2)
-    #print(zomato_review_time_posted2)
-        #month_number = g[7:9]
-        #print(month_number)
-        #hour_posted = str(a1[3])
-        #min_posted = str(a1[4])
-        #hour_and_min_1 = hour_posted + ':' + min_posted
-        #hour_and_min = datetime.datetime.strptime(hour_and_min_1,'%H:%M').strftime('%I:%M %p')
+
 CACHE_FNAME5 = "foursquare_restaurants_cache.json"
 # # either gets new data or caches data, depending upon what the input
 # #		to search for is.
@@ -292,36 +287,44 @@ foursquare_tip_text_list = []
 foursquare_tipper_id_list = []
 tipper_name_list = []
 foursquare_rating_list = []
+foursquare_price_tier_list = []
+foursquare_price_tier_translation_list = []
 for abc in foursquare_id_list:
     tips_info = get_foursquare_review_info(abc)
     visits_count = tips_info['response']['venue']['stats']['visitsCount']
     visits_count_list.append(visits_count)
+    if "price" in tips_info['response']['venue']:
+        foursquare_price_tier = (tips_info['response']['venue']['price']['tier'])
+        foursquare_price_tier_list.append(foursquare_price_tier)
+        foursquare_price_tier_translation = tips_info['response']['venue']['price']['message']
+        foursquare_price_tier_translation_list.append(foursquare_price_tier_translation)
+        #uprint(abc, foursquare_price_tier, foursquare_price_tier_translation)
     if "rating" in tips_info['response']['venue']:
         foursquare_rating = tips_info['response']['venue']['rating']
         foursquare_rating_list.append(foursquare_rating)
-    if len(tips_info['response']['venue']['tips']['groups']) > 0:#[0]['items']) > 0:
-        abcde = tips_info['response']['venue']['tips']['groups']
-        for x in abcde:
-            tips_stuff1 = x['items']
-            for z in foursquare_id_list:
-                for y in tips_stuff1:
-                    foursquare_tip_time_created = y['createdAt']
-                    foursquare_tip_time_created_list.append(foursquare_tip_time_created)
-                    foursqaure_tip_text = y['text']
-                    foursquare_tip_text_list.append(foursqaure_tip_text)
-                    agreen_count_foursquare_tip = y['agreeCount']
-                    agree_count_list.append(agreen_count_foursquare_tip)
-                    if "user" in y:
-                        foursquare_tipper_id = y['user']['id']
-                        foursquare_tipper_id_list.append(foursquare_tipper_id)
-                        foursquare_tipper_first_name = y['user']['firstName']
-                        if "lastName" in y['user']:
-                            last_name_tipper = y['user']['lastName']
-                            tipper_name = foursquare_tipper_first_name + " " + last_name_tipper
-                            tipper_name_list.append(tipper_name)
-                            tipper_name = foursquare_tipper_first_name
-                            tipper_name_list.append(tipper_name)
-#uprint(zomato_restaurant_name, foursquare_tip_text_list)
+        if len(tips_info['response']['venue']['tips']['groups']) > 0:
+            abcde = tips_info['response']['venue']['tips']['groups']
+            for x in abcde:
+                tips_stuff1 = x['items']
+                for z in foursquare_id_list:
+                    for y in tips_stuff1:
+                        foursquare_tip_time_created = y['createdAt']
+                        foursquare_tip_time_created_list.append(foursquare_tip_time_created)
+                        foursqaure_tip_text = y['text']
+                        foursquare_tip_text_list.append(foursqaure_tip_text)
+                        agree_count_foursquare_tip = y['agreeCount']
+                        agree_count_list.append(agree_count_foursquare_tip)
+                        if "user" in y:
+                            foursquare_tipper_id = y['user']['id']
+                            foursquare_tipper_id_list.append(foursquare_tipper_id)
+                            foursquare_tipper_first_name = y['user']['firstName']
+                            if "lastName" in y['user']:
+                                last_name_tipper = y['user']['lastName']
+                                tipper_name = foursquare_tipper_first_name + " " + last_name_tipper
+                                tipper_name_list.append(tipper_name)
+                            else:
+                                tipper_name = foursquare_tipper_first_name
+                                tipper_name_list.append(tipper_name)
 
 # # #get time during day, day of week, and date of tip (review) posted on foursquare
 foursquare_tip_time_created_list2 = []
@@ -377,14 +380,12 @@ while i < 25:
         except IndexError:
             gotdata = 'null'
 
-# #normalize scores from each API to make it a better comparison
 
 zip_general_restaurant_info = zip(zomato_restaurant_name_list, restaurant_address_list, restaurant_locality_list, restaurant_cuisine_list)
 zip_interactions_zomato_part_1 = zip(zomato_restaurant_name_list, zomato_rating_list, avg_cost_2_list, zomato_price_range_list)
 zip_interactions_google = zip(zomato_restaurant_name_list, google_places_rating_list, google_price_level_list)
 zip_interactions_zomato_part_2 = zip(zomato_restaurant_name_list, zomato_review_text_list, zomato_time_review_posted_list2, zomato_reviewer_name_list, zomato_reviewer_foodie_level_word_list, zomato_reviewer_foodie_level_number_list)
-zip_interactions_foursquare_part1 = zip(zomato_restaurant_name_list, foursquare_rating_list, visits_count_list)
-#foursquare_tip_text_list, foursquare_tip_time_created_list2, agree_count_list, foursquare_tipper_id_list ,tipper_name_list
+zip_interactions_foursquare_part1 = zip(zomato_restaurant_name_list, foursquare_rating_list, foursquare_price_tier_list, foursquare_price_tier_translation_list, visits_count_list)
 zip_tips_foursquare = zip(zomato_restaurant_name_list, foursquare_tip_text_list, foursquare_tip_time_created_list2, agree_count_list, foursquare_tipper_id_list ,tipper_name_list)
 normalized_zomato_rating = float(zomato_rating) / 5
 normalized_google_rating = (google_places_rating) / 5
@@ -408,7 +409,7 @@ for y in zip_interactions_zomato_part_1:
     tup = y[0], y[1], y[2], y[3]
     cur.execute("INSERT INTO Zomato_Interactions_Part_1 (restaurant_name, zomato_rating_out_of_5,average_cost_for_two, zomato_price_range_out_of_5) VALUES (?, ?, ?, ?)", tup)
 conn.commit()
-#
+
 conn = sqlite3.connect('FinalProject.sqlite')
 cur = conn.cursor()
 cur.execute('DROP TABLE IF EXISTS Interactions_Part_2_Zomato_Reviews')
@@ -430,10 +431,10 @@ conn.commit()
 conn = sqlite3.connect('FinalProject.sqlite')
 cur = conn.cursor()
 cur.execute('DROP TABLE IF EXISTS Foursquare_Interactions_Part1')
-cur.execute("CREATE TABLE Foursquare_Interactions_Part1 (restaurant_name TEXT, foursquare_rating NUMBER, visits_count NUMBER)")
+cur.execute("CREATE TABLE Foursquare_Interactions_Part1 (restaurant_name TEXT, foursquare_rating NUMBER, foursquare_price_tier NUMBER, foursquare_price_tier_translation TEXT, visits_count NUMBER)")
 for y in zip_interactions_foursquare_part1:
-    tup = y[0], y[1], y[2]
-    cur.execute("INSERT INTO Foursquare_Interactions_Part1 (restaurant_name, foursquare_rating, visits_count) VALUES (?, ?, ?)", tup)
+    tup = y[0], y[1], y[2], y[3], y[4]
+    cur.execute("INSERT INTO Foursquare_Interactions_Part1 (restaurant_name, foursquare_rating, foursquare_price_tier, foursquare_price_tier_translation, visits_count) VALUES (?, ?, ?, ?, ?)", tup)
 conn.commit()
 
 conn = sqlite3.connect('FinalProject.sqlite')
@@ -445,4 +446,3 @@ for x in zomato_restaurant_name_list:
         tup = y[0], y[1], y[2], y[3], y[4], y[5]
         cur.execute("INSERT INTO Foursquare_Tips (restaurant_name, tip_text, time_tip_posted, number_of_likes_on_tip, tipper_foursqaure_id, name_of_tipper) VALUES (?, ?, ?, ?, ?, ?)", tup)
 conn.commit()
-#tip_text TEXT, time_tip_posted TEXT, number_of_likes_on_tip NUMBER, tipper_foursqaure_id NUMBER, name_of_tipper TEXT
