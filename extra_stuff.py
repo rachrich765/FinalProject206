@@ -198,3 +198,141 @@ visits_count = venue_info['response']['venue']['stats']['visitsCount']
     #     time_created_format = (hour_and_min, day, 'December', a1[2], a1[0])
     #     #foursquare_tip_time_created_list2.append(time_created_format)
     #     #print(time_created_format)
+
+    CACHE_FNAME5 = "foursquare_restaurants_cache.json"
+    # # either gets new data or caches data, depending upon what the input
+    # #		to search for is.
+    try:
+    #     # Try to read the data from the file
+        cache_file5 = open(CACHE_FNAME5, 'r')
+    #     # If it's there, get it into a string
+        cache_contents5 = cache_file5.read()
+    #     # load data into a dictionary
+        CACHE_DICTION5 = json.loads(cache_contents5)
+        cache_file5.close()
+    except:
+        CACHE_DICTION5 = {}
+
+    def get_foursquare_restaurant_info(foursquare_restaurant):
+        if foursquare_restaurant in CACHE_DICTION5:
+            foursqaure_restaurant_results = CACHE_DICTION5[foursquare_restaurant]
+        else:
+            url2 = 'https://api.foursquare.com/v2/venues/search'
+            params2 = dict(client_id = Keys_and_Secrets.my_id_foursquare, client_secret = Keys_and_Secrets.my_secret_foursquare, v = '20171009', near = city, query = foursquare_restaurant, category = '4d4b7105d754a06374d81259')
+            response2 = requests.get(url=url2, params=params2)
+            data2 = response2.json()
+            foursqaure_restaurant_results = data2
+            CACHE_DICTION5[foursquare_restaurant] = foursqaure_restaurant_results
+            fw = open(CACHE_FNAME5,"w")
+            fw.write(json.dumps(CACHE_DICTION5))
+            fw.close()
+        return foursqaure_restaurant_results
+
+    agree_count_list = []
+    text_of_tips_list = []
+    tip_text_time_posted_and_agree_counts = {}
+    foursquare_tip_time_created_list = []
+    tipper_id_list = []
+    tipper_first_name_list = []
+    visits_count_list = []
+    foursquare_id_list = []
+
+for ab in zomato_restaurant_name_list:
+    foursquare_restaurant_info = get_foursquare_restaurant_info(ab)
+    restaurant_foursquare = foursquare_restaurant_info['response']['venues'][0]
+            #print(restaurant_foursquare)
+    foursquare_id = (restaurant_foursquare['id'])
+    foursquare_id_list.append(foursquare_id)
+                #foursquare_rating =
+
+    CACHE_FNAME10 = "foursquare_reviews_cache.json"
+    try:
+    #     # Try to read the data from the file
+        cache_file10 = open(CACHE_FNAME10, 'r')
+    #     # If it's there, get it into a string
+        cache_contents10 = cache_file10.read()
+    #     # load data into a dictionary
+        CACHE_DICTION10 = json.loads(cache_contents10)
+        cache_file10.close()
+    except:
+        CACHE_DICTION10 = {}
+    def get_foursquare_review_info(foursquare_restaurant_id):
+        if foursquare_restaurant_id in CACHE_DICTION10:
+            foursqaure_review_results = CACHE_DICTION10[foursquare_restaurant_id]
+        else:
+            base_url10 = 'https://api.foursquare.com/v2/venues/'
+            url10 = base_url10 + str(foursquare_restaurant_id)
+            params10 = dict(client_id = Keys_and_Secrets.my_id_foursquare, client_secret = Keys_and_Secrets.my_secret_foursquare, v = '20171009', limit = 1, sort = 'popuplar')
+            response10 = requests.get(url=url10, params=params10)
+            data10 = response10.json()
+            foursqaure_review_results = data10
+            CACHE_DICTION10[foursquare_restaurant_id] = foursqaure_review_results
+            fw = open(CACHE_FNAME10,"w")
+            fw.write(json.dumps(CACHE_DICTION10))
+            fw.close()
+        return foursqaure_review_results
+
+    foursquare_tip_time_created_list = []
+    likes_count_foursquare_tip_list = []
+    foursquare_tip_text_list = []
+    foursquare_tipper_id_list = []
+    tipper_name_list = []
+    foursquare_rating_list = []
+    foursquare_price_tier_list = []
+    foursquare_price_tier_translation_list = []
+
+    for abc in foursquare_id_list:
+        print(abc)
+        tips_info = get_foursquare_review_info(abc)
+        visits_count = tips_info['response']['venue']['stats']['visitsCount']
+        visits_count_list.append(visits_count)
+        if "price" in tips_info['response']['venue']:
+            foursquare_price_tier = (tips_info['response']['venue']['price']['tier'])
+            foursquare_price_tier_list.append(foursquare_price_tier)
+            foursquare_price_tier_translation = tips_info['response']['venue']['price']['message']
+            foursquare_price_tier_translation_list.append(foursquare_price_tier_translation)
+            #uprint(abc, foursquare_price_tier, foursquare_price_tier_translation)
+        if "rating" in tips_info['response']['venue']:
+            foursquare_rating = tips_info['response']['venue']['rating']
+            foursquare_rating_list.append(foursquare_rating)
+        if len(tips_info['response']['venue']['tips']['groups']) > 0:
+            abcde = tips_info['response']['venue']['tips']['groups']
+            for x in abcde:
+                tips_stuff1 = x['items']
+                for y in tips_stuff1:
+                    foursquare_tip_time_created = y['createdAt']
+                    if foursquare_tip_time_created not in foursquare_tip_time_created_list:
+                        foursquare_tip_time_created_list.append(foursquare_tip_time_created)
+                    foursquare_tip_text = y['text']
+                    if foursquare_tip_text not in foursquare_tip_text_list:
+                        foursquare_tip_text_list.append(foursquare_tip_text)
+                    likes_count_foursquare_tip = y['likes']['count']
+                    #uprint(likes_count_foursquare_tip)
+                    if likes_count_foursquare_tip not in likes_count_foursquare_tip_list:
+                        likes_count_foursquare_tip_list.append(likes_count_foursquare_tip)
+                        #uprint(likes_count_foursquare_tip_list)
+                    if "user" in y:
+                        foursquare_tipper_id = y['user']['id']
+                    if foursquare_tipper_id not in foursquare_tipper_id_list:
+                        foursquare_tipper_id_list.append(foursquare_tipper_id)
+                        foursquare_tipper_first_name = y['user']['firstName']
+                        if "lastName" in y['user']:
+                            last_name_tipper = y['user']['lastName']
+                            tipper_name = foursquare_tipper_first_name + " " + last_name_tipper
+                            if tipper_name not in tipper_name_list:
+                                tipper_name_list.append(tipper_name)
+                        else:
+                            tipper_name = foursquare_tipper_first_name
+                            if tipper_name not in tipper_name_list:
+                                tipper_name_list.append(tipper_name)
+                                #uprint(tipper_name_list)
+    # uprint(len(foursquare_tip_text))
+    # uprint(len(foursquare_tip_time_created_list))
+    # uprint(len(foursquare_tipper_id_list))
+    # uprint(len(tipper_name_list))
+    # # # #get time during day, day of week, and date of tip (review) posted on foursquare
+    foursquare_tip_time_created_list2 = []
+    for a in foursquare_tip_time_created_list:
+        a1 = time.gmtime(a)
+        foursquare_tip_time_created = time.strftime("%c", a1)
+        foursquare_tip_time_created_list2.append(foursquare_tip_time_created)
