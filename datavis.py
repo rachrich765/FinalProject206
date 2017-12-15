@@ -2,13 +2,15 @@ import FinalProjectPythonFile
 import plotly
 import plotly.graph_objs as go
 plotly.tools.set_credentials_file(username='RACHJR36', api_key='em0Xg7tMTqZkYXaCwB9D')
-#pie chart of how many restaurants
+
 split_x_list = []
 spring_list = []
 summer_list = []
 fall_list = []
 winter_list = []
-#print(len(FinalProjectPythonFile.zomato_time_review_posted_list2))
+
+#separate reviews posted by month, then append the months that
+#correspond to each season to the respective list
 for x in FinalProjectPythonFile.zomato_time_review_posted_list2:
     split_x = x.split()
     split_x_list.append(split_x)
@@ -37,13 +39,8 @@ for y in split_x_list:
         winter_list.append(y[1])
     if y[1] == "Feb":
             winter_list.append(y[1])
-#
-# labels = ['Spring','Summer','Fall','Winter']
-# values = [len(spring_list), len(summer_list), len(fall_list), len(winter_list)]
-# colors = ['rgb(60,179,113)', 'rgb(255,215,0)', 'rgb(205,92,92)', 'rgb(255-250-250)']
-# trace = go.Pie(labels=labels, values=values,
-#                hoverinfo='percent', textinfo='label',
-#                textfont=dict(size=25))
+
+#create pie chart
 fig = {
   "data": [
     {
@@ -86,7 +83,8 @@ for i in range(len(FinalProjectPythonFile.zomato_restaurant_name_list)):
         FinalProjectPythonFile.zomato_restaurant_name_list[i] = 'Nico Osteria'
     if FinalProjectPythonFile.zomato_restaurant_name_list[i] == 'Tavern on Rush':
         FinalProjectPythonFile.zomato_restaurant_name_list[i] = 'Tavern On Rush'
-#print(FinalProjectPythonFile.zomato_restaurant_name_list[19] == FinalProjectPythonFile.google_places_names_list[19])
+
+
 zomato_rating_and_name_zip = zip(FinalProjectPythonFile.zomato_restaurant_name_list,FinalProjectPythonFile.zomato_rating_list)
 zomato_rating_and_name_dict  = dict(zomato_rating_and_name_zip)
 google_rating_and_name_zip = zip(FinalProjectPythonFile.google_places_names_list, FinalProjectPythonFile.google_places_rating_list)
@@ -94,19 +92,21 @@ google_rating_and_name_dict = dict(google_rating_and_name_zip)
 google_rating_list_updated = []
 zomato_rating_list_updated = []
 names_list = []
+
+#match up names only found in Google dictionary with respective ratings
+#(either from Zomato or Google API)
 for k in google_rating_and_name_dict:
     google_rating_list_updated.append(google_rating_and_name_dict[k])
     zomato_rating_list_updated.append(zomato_rating_and_name_dict[k])
     names_list.append(k)
 
-
-
-trace3 = go.Bar(x = [y for y in names_list], y = [z for z in zomato_rating_list_updated], name = 'Zomato Rating', marker = dict(color = 'rgb(102,205,170)'))
-trace4 = go.Bar(x = [y for y in names_list], y = [z for z in google_rating_list_updated], name = 'Google Rating',  marker = dict(color = 'rgb(255,105,180)'))
+#create side-by-side bar chart
+trace3 = go.Bar(x = [y for y in names_list], y = [z for z in zomato_rating_list_updated], name = 'Zomato Rating', marker = dict(color = 'rgb(255,0,0)')) #red to correspond with Zomato logo / site colors
+trace4 = go.Bar(x = [y for y in names_list], y = [z for z in google_rating_list_updated], name = 'Google Rating',  marker = dict(color = 'rgb(50,205,50)')) #green for Google
 data = [trace3, trace4]
 layout = go.Layout(
      barmode='group',
-     title = 'Google Ratings vs. Zomato Ratings for Restaurants Trending in Chicago This Week',
+     title = 'Google Ratings vs. Zomato Ratings for Restaurants Trending in Chicago this Week',
 )
 fig = go.Figure(data=data, layout=layout)
-plotly.offline.plot(fig, filename='GoogleVsZomatoRatings.html')
+plotly.offline.plot(fig, filename='GoogleVsZomato.html')

@@ -1,12 +1,10 @@
 ## SI 206 2017
 ## Project 4
 # Your name:Rachel Richardson
-import operator
 import json
 import sqlite3
 import sys
 import requests
-from pprint import pprint
 import Keys_and_Secrets
 import time
 
@@ -53,7 +51,7 @@ def get_zomato_city(city):
         fw.close()
     return city_results
 
-#get Zomato city id for city
+#get Zomato city id for chicago
 city_info = get_zomato_city(city)
 zomato_city_id = str(city_info['location_suggestions'][0]['id'])
 uprint(city, "zoatmo city id:", zomato_city_id)
@@ -91,7 +89,11 @@ def get_zomato_restaurants_in_collection(collection):
         fw.close()
     return collection_results
 
+#get "Trending This Week Collection"
+# after reading the documentation, I noted that it is collection #1
 collection = str(1)
+
+#call function to get which restaurants are in this collection in the city of Chicago
 restaurants_info = get_zomato_restaurants_in_collection(collection)
 
 zomato_restaurant_id_list = list()
@@ -213,6 +215,7 @@ for y in zomato_restaurant_id_list:
     z_reviewer_f_level_num = restaurant_reviews['user_reviews'][0]['review']['user']['foodie_level_num']
     zomato_reviewer_foodie_level_number_list.append(z_reviewer_f_level_num)
 
+#convert timestamp to day, month, year, hour:min:sec format
 zomato_time_review_posted_list2 = []
 for f in zomato_time_review_posted_list:
     f1 = time.gmtime(f)
@@ -231,12 +234,13 @@ try:
 except:
     CACHE_DICTION6 = dict()
 
-#using lat and long information from Zomato API, get restaurant info
+#using lattitude and longitude information from Zomato API, get restaurant info
 #either from cache or from Google API
 def get_google_restaurant_info(google_restaurant):
     if google_restaurant in CACHE_DICTION6:
         google_restaurant_results = CACHE_DICTION6[google_restaurant]
     else:
+        #make sure only returns results of restaurants
         base_url3 = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?'
         url3 = base_url3 + 'location=' + lat_and_long + '&type=restaurant' + '&rankby=distance&keyword=' + ab + '&key=' + Keys_and_Secrets._key
         resp3 = requests.get(url=url3)
@@ -253,6 +257,7 @@ google_price_level_list = []
 google_places_names_list = []
 dict_google_names_and_ratings = {}
 dict_google_names_and_price_levels = dict()
+
 # #get details on price level and rating for restaurants obtained from Zomato
 for ab in zomato_restaurant_name_list:
     google_restaurant_info = get_google_restaurant_info(ab)
@@ -281,40 +286,76 @@ zip_interactions_google = zip(google_places_names_list, google_places_rating_lis
 zip_interactions_zomato_part_2 = zip(zomato_restaurant_name_list, zomato_review_text_list, zomato_time_review_posted_list2, zomato_reviewer_name_list, zomato_reviewer_foodie_level_word_list, zomato_reviewer_foodie_level_number_list)
 
 
-# # #creating database
-# conn = sqlite3.connect('FinalProject.sqlite')
-# cur = conn.cursor()
-# cur.execute("DROP TABLE IF EXISTS General_Restaurant_Info")
-# cur.execute("CREATE TABLE General_Restaurant_Info (restaurant_name TEXT, restaurant_address TEXT, restaurant_locality TEXT, restaurant_cuisines TEXT)")
-# for y in zip_general_restaurant_info:
-#     tup = y[0], y[1], y[2], y[3]
-#     cur.execute("INSERT INTO General_Restaurant_Info (restaurant_name, restaurant_address, restaurant_locality, restaurant_cuisines) VALUES (?, ?, ?, ?)", tup)
-# conn.commit()
-# cur.close()
-# conn = sqlite3.connect('FinalProject.sqlite')
-# cur = conn.cursor()
-# cur.execute('DROP TABLE IF EXISTS Zomato_Interactions_Part_1')
-# cur.execute("CREATE TABLE Zomato_Interactions_Part_1 (restaurant_name TEXT, zomato_rating_out_of_5 NUMBER,average_cost_for_two NUMBER, zomato_price_range_out_of_5 NUMBER)")
-# for y in zip_interactions_zomato_part_1:
-#     tup = y[0], y[1], y[2], y[3]
-#     cur.execute("INSERT INTO Zomato_Interactions_Part_1 (restaurant_name, zomato_rating_out_of_5,average_cost_for_two, zomato_price_range_out_of_5) VALUES (?, ?, ?, ?)", tup)
-# conn.commit()
-# cur.close()
-# conn = sqlite3.connect('FinalProject.sqlite')
-# cur = conn.cursor()
-# cur.execute('DROP TABLE IF EXISTS Interactions_Part_2_Zomato_Reviews')
-# cur.execute("CREATE TABLE Interactions_Part_2_Zomato_Reviews (restaurant_name TEXT, zomato_review_text TEXT, zomato_time_review_posted TEXT, zomato_reviewer_name TEXT, zomato_reviewer_foodie_level_word TEXT,zomato_reviewer_foodie_level_number TEXT)")
-# for y in zip_interactions_zomato_part_2:
-#     tup = y[0], y[1], y[2], y[3], y[4], y[5]
-#     cur.execute("INSERT INTO Interactions_Part_2_Zomato_Reviews (restaurant_name, zomato_review_text, zomato_time_review_posted, zomato_reviewer_name, zomato_reviewer_foodie_level_word,zomato_reviewer_foodie_level_number) VALUES (?, ?, ?, ?, ?, ?)", tup)
-# conn.commit()
-# conn = sqlite3.connect('FinalProject.sqlite')
-# cur.close()
-# cur = conn.cursor()
-# cur.execute('DROP TABLE IF EXISTS Google_Interactions')
-# cur.execute("CREATE TABLE Google_Interactions (restaurant_name TEXT, google_rating_out_of_5 NUMBER, google_price_range_out_of_5 NUMBER)")
-# for y in zip_interactions_google:
-#     tup = y[0], y[1], y[2]
-#     cur.execute("INSERT INTO Google_Interactions (restaurant_name, google_rating_out_of_5, google_price_range_out_of_5) VALUES (?, ?, ?)", tup)
-# conn.commit()
-# cur.close()
+# creating database
+
+#creating first table
+
+#connect to database
+conn = sqlite3.connect('FinalProject.sqlite')
+#create cursor
+cur = conn.cursor()
+#remove the table added with the CREATE TABLE statement (if it exists)
+cur.execute("DROP TABLE IF EXISTS General_Restaurant_Info")
+#create table with given labels (row titles)
+cur.execute("CREATE TABLE General_Restaurant_Info (restaurant_name TEXT, restaurant_address TEXT, restaurant_locality TEXT, restaurant_cuisines TEXT)")
+#create tuples from zip object containing general restaurant info
+for y in zip_general_restaurant_info:
+    tup = y[0], y[1], y[2], y[3]
+#insert general restaurant info into table as tuples
+    cur.execute("INSERT INTO General_Restaurant_Info (restaurant_name, restaurant_address, restaurant_locality, restaurant_cuisines) VALUES (?, ?, ?, ?)", tup)
+conn.commit()
+cur.close()
+
+#creating second table
+
+#connect to database
+conn = sqlite3.connect('FinalProject.sqlite')
+#create cursor
+cur = conn.cursor()
+#remove the table added with the CREATE TABLE statement (if it exists)
+cur.execute('DROP TABLE IF EXISTS Zomato_Interactions_Part_1')
+#create table with given lables (row titles)
+cur.execute("CREATE TABLE Zomato_Interactions_Part_1 (restaurant_name TEXT, zomato_rating_out_of_5 NUMBER,average_cost_for_two NUMBER, zomato_price_range_out_of_5 NUMBER)")
+#create tuples from zip object containing first part of Zomato ineractions per restaurant
+for y in zip_interactions_zomato_part_1:
+    tup = y[0], y[1], y[2], y[3]
+    #insert first part of Zomato interactions into table as tuples
+    cur.execute("INSERT INTO Zomato_Interactions_Part_1 (restaurant_name, zomato_rating_out_of_5,average_cost_for_two, zomato_price_range_out_of_5) VALUES (?, ?, ?, ?)", tup)
+conn.commit()
+cur.close()
+
+#creating third table
+
+#connect to database
+conn = sqlite3.connect('FinalProject.sqlite')
+#create cursor
+cur = conn.cursor()
+#remove the table added with the CREATE TABLE statement (if it exists)
+cur.execute('DROP TABLE IF EXISTS Interactions_Part_2_Zomato_Reviews')
+#create table with given lables (row titles)
+cur.execute("CREATE TABLE Interactions_Part_2_Zomato_Reviews (restaurant_name TEXT, zomato_review_text TEXT, zomato_time_review_posted TEXT, zomato_reviewer_name TEXT, zomato_reviewer_foodie_level_word TEXT,zomato_reviewer_foodie_level_number TEXT)")
+#create tuples from zip object containing details on Zomato reviews for each restaurant
+for y in zip_interactions_zomato_part_2:
+    tup = y[0], y[1], y[2], y[3], y[4], y[5]
+    #insert details on Zomato Reviews into table as tuples
+    cur.execute("INSERT INTO Interactions_Part_2_Zomato_Reviews (restaurant_name, zomato_review_text, zomato_time_review_posted, zomato_reviewer_name, zomato_reviewer_foodie_level_word,zomato_reviewer_foodie_level_number) VALUES (?, ?, ?, ?, ?, ?)", tup)
+conn.commit()
+cur.close()
+
+#creating fourth tables
+
+#connect to database
+conn = sqlite3.connect('FinalProject.sqlite')
+#create cursor
+cur = conn.cursor()
+#remove the table added with the CREATE TABLE statement (if it exists)
+cur.execute('DROP TABLE IF EXISTS Google_Interactions')
+#create table with given lables (row titles)
+cur.execute("CREATE TABLE Google_Interactions (restaurant_name TEXT, google_rating_out_of_5 NUMBER, google_price_range_out_of_5 NUMBER)")
+#create tuples from zip object containing details on interactions on Google for each restaurant
+for y in zip_interactions_google:
+    tup = y[0], y[1], y[2]
+        #insert details on Google interactions into table as tupels
+    cur.execute("INSERT INTO Google_Interactions (restaurant_name, google_rating_out_of_5, google_price_range_out_of_5) VALUES (?, ?, ?)", tup)
+conn.commit()
+cur.close()
